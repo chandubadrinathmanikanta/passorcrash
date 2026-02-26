@@ -1,5 +1,27 @@
-out
-dist
-node_modules
-.vscode-test/
+# Node modules
+node_modules/
+
+# VS Code / IDE files
+.vscode/
+.vscode-test.mjs
+
+# Logs
+*.log
+logs/
+
+# Output directories
+out/
+dist/
+
+# Temp files
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+
+# VSIX packages
 *.vsix
+
+# OS specific files
+Thumbs.db
+.DS_Store

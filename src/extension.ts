@@ -1,48 +1,64 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
-import * as path from 'path';
+
+let audioProcess: any = null;
 
 export function activate(context: vscode.ExtensionContext) {
 
-	const runCommand = vscode.commands.registerCommand(
-		'passorcrash.runTests',
-		() => {
+    console.log("PassOrCrash is Active");
 
-			const extensionPath = context.extensionPath;
-			const failSound = path.join(extensionPath, 'media', 'fahhhhh.mp3');
-			const successSound = path.join(extensionPath, 'media', 'aarti.mp3');
+    const disposable = vscode.commands.registerCommand('passorcrash.run', async () => {
 
-			vscode.window.showInformationMessage('Compiling and running tests...');
+        const isPass = Math.random() > 0.5;
 
-			// First compile
-			exec('npm run compile', (compileError) => {
+        const soundPath = isPass
+            ? context.asAbsolutePath('media/aarti.wav')
+            : context.asAbsolutePath('media/fahhhhh.wav');
 
-				if (compileError) {
-					playSound(failSound);
-					vscode.window.showErrorMessage('❌ Compilation Failed!');
-					return;
-				}
+        try {
 
-				// Then run tests
-				exec('npm test', (testError) => {
+            // Kill previous sound if running
+            if (audioProcess) {
+                audioProcess.kill();
+                audioProcess = null;
+            }
 
-					if (testError) {
-						playSound(failSound);
-						vscode.window.showErrorMessage('❌ Tests Failed!');
-					} else {
-						playSound(successSound);
-						vscode.window.showInformationMessage('✅ All Tests Passed!');
-					}
-				});
-			});
-		}
-	);
+            // Windows native WAV player via PowerShell
+            audioProcess = exec(
+                `powershell -c (New-Object Media.SoundPlayer '${soundPath}').PlaySync();`,
+                (error) => {
+                    if (error) {
+                        console.error(error);
+                    }
+                }
+            );
 
-	context.subscriptions.push(runCommand);
+            // STRICT 5 second stop
+            setTimeout(() => {
+                if (audioProcess) {
+                    audioProcess.kill();
+                    audioProcess = null;
+                }
+            }, 5000);
+
+            if (isPass) {
+                vscode.window.showInformationMessage("✅ All Tests Passed!");
+            } else {
+                vscode.window.showErrorMessage("❌ Tests Failed!");
+            }
+
+        } catch (err) {
+            vscode.window.showErrorMessage("Audio playback failed.");
+            console.error(err);
+        }
+
+    });
+
+    context.subscriptions.push(disposable);
 }
 
-function playSound(soundPath: string) {
-	exec(`powershell -c (New-Object Media.SoundPlayer '${soundPath}').PlaySync();`);
+export function deactivate() {
+    if (audioProcess) {
+        audioProcess.kill();
+    }
 }
-
-export function deactivate() {}

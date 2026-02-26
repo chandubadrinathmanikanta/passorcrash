@@ -1,11 +1,10 @@
-.vscode/**
-.vscode-test/**
-src/**
-.gitignore
-.yarnrc
-vsc-extension-quickstart.md
-**/tsconfig.json
-**/eslint.config.mjs
-**/*.map
-**/*.ts
-**/.vscode-test.*
+# Ignore everything by default
+**
+
+# Include only the runtime files
+!out/
+!media/
+!ShowTree.ps1
+!package.json
+!README.md
+!CHANGELOG.md
