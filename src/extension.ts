@@ -1,26 +1,48 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { exec } from 'child_process';
+import * as path from 'path';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "passorcrash" is now active!');
+	const runCommand = vscode.commands.registerCommand(
+		'passorcrash.runTests',
+		() => {
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('passorcrash.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from PassOrCrash!');
-	});
+			const extensionPath = context.extensionPath;
+			const failSound = path.join(extensionPath, 'media', 'fahhhhh.mp3');
+			const successSound = path.join(extensionPath, 'media', 'aarti.mp3');
 
-	context.subscriptions.push(disposable);
+			vscode.window.showInformationMessage('Compiling and running tests...');
+
+			// First compile
+			exec('npm run compile', (compileError) => {
+
+				if (compileError) {
+					playSound(failSound);
+					vscode.window.showErrorMessage('❌ Compilation Failed!');
+					return;
+				}
+
+				// Then run tests
+				exec('npm test', (testError) => {
+
+					if (testError) {
+						playSound(failSound);
+						vscode.window.showErrorMessage('❌ Tests Failed!');
+					} else {
+						playSound(successSound);
+						vscode.window.showInformationMessage('✅ All Tests Passed!');
+					}
+				});
+			});
+		}
+	);
+
+	context.subscriptions.push(runCommand);
 }
 
-// This method is called when your extension is deactivated
+function playSound(soundPath: string) {
+	exec(`powershell -c (New-Object Media.SoundPlayer '${soundPath}').PlaySync();`);
+}
+
 export function deactivate() {}
