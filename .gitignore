@@ -1,27 +1,23 @@
 # Node modules
 node_modules/
 
-# VS Code / IDE files
-.vscode/
-.vscode-test.mjs
-
-# Logs
-*.log
-logs/
-
-# Output directories
+# Compiled files
 out/
-dist/
-
-# Temp files
-*.tmp
-*.bak
-*.swp
-*.DS_Store
 
 # VSIX packages
 *.vsix
 
-# OS specific files
-Thumbs.db
+# Logs
+logs/
+*.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+.vscode-test.mjs
+
+# Temp/test outputs
+folder-structure.txt
